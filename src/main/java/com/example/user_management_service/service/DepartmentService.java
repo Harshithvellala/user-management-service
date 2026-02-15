@@ -41,6 +41,20 @@ public class DepartmentService {
         return departments.stream().map(this::mapToResponse).toList();
     }
 
+    public DepartmentResponseDto updateDepartment(long id, DepartmentRequestDto departmentRequestDto) {
+        Department existingDepartment = departmentRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Department not found with id: " + id)); 
+        existingDepartment.setName(departmentRequestDto.getName());
+        existingDepartment.setDescription(departmentRequestDto.getDescription());
+        existingDepartment.setLocation(departmentRequestDto.getLocation());
+        Department updatedDepartment = departmentRepository.save(existingDepartment);
+        return mapToResponse(updatedDepartment);
+    }
+
+    public void deleteDepartment(long id) {
+        Department department = departmentRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Department not found with id: " + id));
+        departmentRepository.delete(department);
+    }
+
     private Department mapToEntity(DepartmentRequestDto departmentRequestDto) {
         Department department = new Department();
         department.setName(departmentRequestDto.getName());

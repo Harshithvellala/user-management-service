@@ -52,17 +52,22 @@ public class UserService {
     }
 
     public UserResponseDto updateUser(long id, UserRequestDto updatedUserRequestDto){
+        User existingUser = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id)); 
         validatePayrollAcccess(updatedUserRequestDto);
-        User updatedUser = mapToEntity(updatedUserRequestDto);
-        userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id)); // this throws exception if user not found
-        updatedUser = userRepository.save(updatedUser);
+        existingUser.setFirstName(updatedUserRequestDto.getFirstName());
+        existingUser.setLastName(updatedUserRequestDto.getLastName());
+        existingUser.setEmail(updatedUserRequestDto.getEmail());
+        existingUser.setPhone(updatedUserRequestDto.getPhone());
+        existingUser.setRole(updatedUserRequestDto.getRole());
+        Department dept = departmentRepository.findById(updatedUserRequestDto.getDepartmentId()).orElseThrow(() -> new ResourceNotFoundException("Department not found with id: " + updatedUserRequestDto.getDepartmentId()));
+        existingUser.setDepartment(dept);
+        User updatedUser = userRepository.save(existingUser);
         return mapToResponse(updatedUser);
     }
 
-    public UserResponseDto deleteUser(long id) {
+    public void deleteUser(long id) {
         User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
         userRepository.delete(user);
-        return mapToResponse(user);
     }
 
     public List<UserResponseDto> getUsersByDepartmentId(long departmentId) {
