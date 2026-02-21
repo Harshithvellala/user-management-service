@@ -20,12 +20,6 @@ import com.example.user_management_service.service.UserService;
 
 import jakarta.validation.Valid;
 
-
-
-
-
-
-
 @RestController
 @RequestMapping("/users")
 public class UserController {

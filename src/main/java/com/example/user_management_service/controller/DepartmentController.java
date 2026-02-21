@@ -19,9 +19,6 @@ import com.example.user_management_service.service.DepartmentService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PutMapping;
 
-
-
-
 @RestController
 @RequestMapping("/department")
 public class DepartmentController {

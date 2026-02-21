@@ -1,6 +1,7 @@
 package com.example.user_management_service.service;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -11,9 +12,11 @@ import com.example.user_management_service.dto.UserRequestDto;
 import com.example.user_management_service.dto.UserResponseDto;
 import com.example.user_management_service.exception.ResourceNotFoundException;
 import com.example.user_management_service.model.Department;
+import com.example.user_management_service.model.Project;
 import com.example.user_management_service.model.Role;
 import com.example.user_management_service.model.User;
 import com.example.user_management_service.repository.DepartmentRepository;
+import com.example.user_management_service.repository.ProjectRepository;
 import com.example.user_management_service.repository.UserRepository;
 
 @Service
@@ -22,11 +25,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final DepartmentRepository departmentRepository;
     private final DepartmentService departmentService;
+    private final ProjectRepository projectRepository;
 
-    public UserService(UserRepository userRepository, DepartmentRepository departmentRepository, DepartmentService departmentService) {
+    public UserService(UserRepository userRepository, DepartmentRepository departmentRepository, DepartmentService departmentService, ProjectRepository projectRepository) {
         this.userRepository = userRepository;
         this.departmentRepository = departmentRepository;
         this.departmentService = departmentService;
+        this.projectRepository = projectRepository;
     }
 
     public UserResponseDto registerUser(UserRequestDto newUserRequestDto) {
@@ -98,6 +103,22 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Users with role USER cannot have payroll information.");
         }
+    }
+
+    public List<UserResponseDto> getUsersByProjectId(Long projectId) {
+        Set<User> users = projectRepository.findById(projectId).orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId)).getUsers();
+        if(users == null || users.isEmpty()) {
+            throw new ResourceNotFoundException("No users found for project with id: " + projectId);
+        }
+        return users.stream().map(this::mapToResponse).toList();
+    }
+
+    public UserResponseDto assignUserToProject(Long userId, Long projectId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        Project project = projectRepository.findById(projectId).orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId));
+        user.getProjects().add(project);
+        User updatedUser = userRepository.save(user);
+        return mapToResponse(updatedUser);
     }
 
     private User mapToEntity(UserRequestDto userRequestDto) {
