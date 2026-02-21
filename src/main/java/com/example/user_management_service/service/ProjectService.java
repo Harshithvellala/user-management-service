@@ -19,6 +19,12 @@ public class ProjectService {
     }
 
     public ProjectResponseDto createProject(ProjectRequestDto projectRequestDto) {
+        if(projectRequestDto.getStartDate() != null && projectRequestDto.getEndDate() != null && projectRequestDto.getStartDate().isAfter(projectRequestDto.getEndDate())) {
+            throw new IllegalArgumentException("Start date cannot be after end date");
+        }
+        if(projectRepository.findByName(projectRequestDto.getName()).isPresent()) {
+            throw new IllegalArgumentException("Project with the same name already exists");
+        }
         Project project = mapToEntity(projectRequestDto);
         Project savedProject = projectRepository.save(project);
         return mapToResponseDto(savedProject);

@@ -25,14 +25,12 @@ public class UserService {
     private final UserRepository userRepository;
     private final DepartmentRepository departmentRepository;
     private final DepartmentService departmentService;
-    private final ProjectService projectService;
     private final ProjectRepository projectRepository;
 
-    public UserService(UserRepository userRepository, DepartmentRepository departmentRepository, DepartmentService departmentService, ProjectService projectService, ProjectRepository projectRepository) {
+    public UserService(UserRepository userRepository, DepartmentRepository departmentRepository, DepartmentService departmentService, ProjectRepository projectRepository) {
         this.userRepository = userRepository;
         this.departmentRepository = departmentRepository;
         this.departmentService = departmentService;
-        this.projectService = projectService;
         this.projectRepository = projectRepository;
     }
 
