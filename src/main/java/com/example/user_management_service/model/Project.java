@@ -1,5 +1,6 @@
 package com.example.user_management_service.model;
 
+import java.util.Date;
 import java.util.Set;
 
 import jakarta.persistence.Column;
@@ -25,6 +26,8 @@ public class Project {
     @Enumerated(EnumType.STRING)
     @Column(nullable=false)
     private Status status;
+    private Date startDate;
+    private Date endDate;
     @ManyToMany(mappedBy = "projects", fetch=FetchType.LAZY)
     private Set<User> users;
 
@@ -57,6 +60,18 @@ public class Project {
     }
     public void setUsers(Set<User> users) {
         this.users = users;
+    }
+    public Date getStartDate() {
+        return startDate;
+    }
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+    public Date getEndDate() {
+        return endDate;
+    }
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
     }
     
     
