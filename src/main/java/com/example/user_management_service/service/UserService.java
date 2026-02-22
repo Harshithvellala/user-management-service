@@ -38,7 +38,13 @@ public class UserService {
 
     public UserResponseDto registerUser(UserRequestDto newUserRequestDto) {
         validatePayrollAcccess(newUserRequestDto);
-        User newUser = mapToEntity(newUserRequestDto);
+        User newUser = dtoMapper.mapUserToEntity(newUserRequestDto);
+        // resolve department reference if only id was set by mapper
+        if (newUser.getDepartment() != null && newUser.getDepartment().getId() != 0) {
+            Department dept = departmentRepository.findById(newUser.getDepartment().getId()).orElseThrow(
+                    () -> new ResourceNotFoundException("Department not found with id: " + newUser.getDepartment().getId()));
+            newUser.setDepartment(dept);
+        }
         User savedUser = userRepository.save(newUser);
         return dtoMapper.mapUserToResponse(savedUser);
     }
@@ -67,7 +73,7 @@ public class UserService {
         existingUser.setPhone(updatedUserRequestDto.getPhone());
         existingUser.setRole(updatedUserRequestDto.getRole());
         Department dept = departmentRepository.findById(updatedUserRequestDto.getDepartmentId()).orElseThrow(() -> new ResourceNotFoundException("Department not found with id: " + updatedUserRequestDto.getDepartmentId()));
-        existingUser.setDepartment(dept);
+            existingUser.setDepartment(dept);
         User updatedUser = userRepository.save(existingUser);
         return dtoMapper.mapUserToResponse(updatedUser);
     }
@@ -132,17 +138,5 @@ public class UserService {
         return dtoMapper.mapUserToResponse(updatedUser);
     }
 
-    private User mapToEntity(UserRequestDto userRequestDto) {
-        User user = new User();
-        user.setFirstName(userRequestDto.getFirstName());
-        user.setLastName(userRequestDto.getLastName());
-        user.setEmail(userRequestDto.getEmail());
-        user.setPhone(userRequestDto.getPhone());
-        user.setRole(userRequestDto.getRole());
-        Department dept = departmentRepository.findById(userRequestDto.getDepartmentId()).orElseThrow(() -> new ResourceNotFoundException("Department not found with id: " + userRequestDto.getDepartmentId()));
-        user.setDepartment(dept);
-        user.setProjects(userRequestDto.getProjects());
-        user.setPayRoll(userRequestDto.getPayRoll());
-        return user;
-    }
+    
 }

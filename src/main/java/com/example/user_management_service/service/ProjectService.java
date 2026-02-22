@@ -31,7 +31,7 @@ public class ProjectService {
         if(projectRepository.findByName(projectRequestDto.getName()).isPresent()) {
             throw new IllegalArgumentException("Project with the same name already exists");
         }
-        Project project = mapToEntity(projectRequestDto);
+        Project project = dtoMapper.mapProjectToEntity(projectRequestDto);
         Project savedProject = projectRepository.save(project);
         return dtoMapper.mapProjectToResponse(savedProject);
     }
@@ -73,13 +73,5 @@ public class ProjectService {
         return users.stream().map(dtoMapper::mapUserToResponse).toList();
     }
 
-    private Project mapToEntity(ProjectRequestDto projectRequestDto) {
-        Project project = new Project();
-        project.setName(projectRequestDto.getName());
-        project.setDescription(projectRequestDto.getDescription());
-        project.setStatus(projectRequestDto.getStatus());
-        project.setStartDate(projectRequestDto.getStartDate());
-        project.setEndDate(projectRequestDto.getEndDate());
-        return project;
-    }
+    
 }

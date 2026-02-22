@@ -2,15 +2,24 @@ package com.example.user_management_service.util;
 
 import org.springframework.stereotype.Component;
 
+import com.example.user_management_service.dto.DepartmentRequestDto;
 import com.example.user_management_service.dto.DepartmentResponseDto;
+import com.example.user_management_service.dto.ProjectRequestDto;
 import com.example.user_management_service.dto.ProjectResponseDto;
+import com.example.user_management_service.dto.UserRequestDto;
 import com.example.user_management_service.dto.UserResponseDto;
+import com.example.user_management_service.exception.ResourceNotFoundException;
 import com.example.user_management_service.model.Department;
 import com.example.user_management_service.model.Project;
 import com.example.user_management_service.model.User;
+import com.example.user_management_service.repository.DepartmentRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Component
 public class DtoMapper {
+
+    @Autowired
+    private DepartmentRepository departmentRepository;
 
     public ProjectResponseDto mapProjectToResponse(Project project) {
         ProjectResponseDto responseDto = new ProjectResponseDto();
@@ -50,4 +59,41 @@ public class DtoMapper {
         dto.setLocation(department.getLocation());
         return dto;
     }
+    
+    public Project mapProjectToEntity(ProjectRequestDto requestDto) {
+        if (requestDto == null) return null;
+        Project project = new Project();
+        project.setName(requestDto.getName());
+        project.setDescription(requestDto.getDescription());
+        project.setStatus(requestDto.getStatus());
+        project.setStartDate(requestDto.getStartDate());
+        project.setEndDate(requestDto.getEndDate());
+        return project;
+    }
+
+    public Department mapDepartmentToEntity(DepartmentRequestDto requestDto) {
+        if (requestDto == null) return null;
+        Department department = new Department();
+        department.setName(requestDto.getName());
+        department.setDescription(requestDto.getDescription());
+        department.setLocation(requestDto.getLocation());
+        return department;
+    }
+
+    public User mapUserToEntity(UserRequestDto requestDto) {
+        if (requestDto == null) return null;
+        User user = new User();
+        user.setFirstName(requestDto.getFirstName());
+        user.setLastName(requestDto.getLastName());
+        user.setEmail(requestDto.getEmail());
+        user.setPhone(requestDto.getPhone());
+        user.setRole(requestDto.getRole());
+        user.setPayRoll(requestDto.getPayRoll());
+        Department dept = departmentRepository.findById(requestDto.getDepartmentId()).orElseThrow(() -> new ResourceNotFoundException("Department not found with id: " + requestDto.getDepartmentId()));
+        user.setDepartment(dept);
+        user.setProjects(requestDto.getProjects());
+        user.setPayRoll(requestDto.getPayRoll());
+        return user;
+    }
 }
+

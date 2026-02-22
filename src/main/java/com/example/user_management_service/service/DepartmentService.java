@@ -22,7 +22,7 @@ public class DepartmentService {
     }
 
     public DepartmentResponseDto createDepartment(DepartmentRequestDto departmentRequestDto) {
-        Department department = mapToEntity(departmentRequestDto);
+        Department department = dtoMapper.mapDepartmentToEntity(departmentRequestDto);
         if(departmentRepository.existsByName(department.getName())) {
             throw new IllegalStateException("Department with name " + department.getName() + " already exists.");
         }
@@ -58,11 +58,5 @@ public class DepartmentService {
         departmentRepository.delete(department);
     }
 
-    private Department mapToEntity(DepartmentRequestDto departmentRequestDto) {
-        Department department = new Department();
-        department.setName(departmentRequestDto.getName());
-        department.setDescription(departmentRequestDto.getDescription());
-        department.setLocation(departmentRequestDto.getLocation());
-        return department;
-    }
+    
 }
