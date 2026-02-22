@@ -8,18 +8,12 @@ import com.example.user_management_service.dto.ProjectRequestDto;
 import com.example.user_management_service.dto.ProjectResponseDto;
 import com.example.user_management_service.dto.UserRequestDto;
 import com.example.user_management_service.dto.UserResponseDto;
-import com.example.user_management_service.exception.ResourceNotFoundException;
 import com.example.user_management_service.model.Department;
 import com.example.user_management_service.model.Project;
 import com.example.user_management_service.model.User;
-import com.example.user_management_service.repository.DepartmentRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @Component
 public class DtoMapper {
-
-    @Autowired
-    private DepartmentRepository departmentRepository;
 
     public ProjectResponseDto mapProjectToResponse(Project project) {
         ProjectResponseDto responseDto = new ProjectResponseDto();
@@ -89,8 +83,7 @@ public class DtoMapper {
         user.setPhone(requestDto.getPhone());
         user.setRole(requestDto.getRole());
         user.setPayRoll(requestDto.getPayRoll());
-        Department dept = departmentRepository.findById(requestDto.getDepartmentId()).orElseThrow(() -> new ResourceNotFoundException("Department not found with id: " + requestDto.getDepartmentId()));
-        user.setDepartment(dept);
+        user.setDepartment(new Department(requestDto.getDepartmentId()));
         user.setProjects(requestDto.getProjects());
         user.setPayRoll(requestDto.getPayRoll());
         return user;

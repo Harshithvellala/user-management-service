@@ -25,6 +25,13 @@ public class Department {
     @OneToMany(mappedBy = "department")
     private Set<User> users = new HashSet<>();
 
+    public Department() {
+    }
+
+    public Department(Long id) {
+        if (id != null) this.id = id;
+    }
+
     public long getId() {
         return id;
     }

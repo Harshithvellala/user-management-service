@@ -41,8 +41,7 @@ public class UserService {
         User newUser = dtoMapper.mapUserToEntity(newUserRequestDto);
         // resolve department reference if only id was set by mapper
         if (newUser.getDepartment() != null && newUser.getDepartment().getId() != 0) {
-            Department dept = departmentRepository.findById(newUser.getDepartment().getId()).orElseThrow(
-                    () -> new ResourceNotFoundException("Department not found with id: " + newUser.getDepartment().getId()));
+            Department dept = departmentRepository.findById(newUser.getDepartment().getId()).orElseThrow(() -> new ResourceNotFoundException("Department not found with id: " + newUser.getDepartment().getId()));
             newUser.setDepartment(dept);
         }
         User savedUser = userRepository.save(newUser);
