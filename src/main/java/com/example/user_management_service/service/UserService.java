@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.user_management_service.dto.DepartmentResponseDto;
+import com.example.user_management_service.dto.ProjectResponseDto;
 import com.example.user_management_service.dto.UserRequestDto;
 import com.example.user_management_service.dto.UserResponseDto;
 import com.example.user_management_service.exception.ResourceNotFoundException;
@@ -18,37 +19,38 @@ import com.example.user_management_service.model.User;
 import com.example.user_management_service.repository.DepartmentRepository;
 import com.example.user_management_service.repository.ProjectRepository;
 import com.example.user_management_service.repository.UserRepository;
+import com.example.user_management_service.util.DtoMapper;
 
 @Service
 public class UserService {
     
     private final UserRepository userRepository;
     private final DepartmentRepository departmentRepository;
-    private final DepartmentService departmentService;
     private final ProjectRepository projectRepository;
+    private final DtoMapper dtoMapper;
 
-    public UserService(UserRepository userRepository, DepartmentRepository departmentRepository, DepartmentService departmentService, ProjectRepository projectRepository) {
+    public UserService(UserRepository userRepository, DepartmentRepository departmentRepository, ProjectRepository projectRepository, DtoMapper dtoMapper) {
         this.userRepository = userRepository;
         this.departmentRepository = departmentRepository;
-        this.departmentService = departmentService;
         this.projectRepository = projectRepository;
+        this.dtoMapper = dtoMapper;
     }
 
     public UserResponseDto registerUser(UserRequestDto newUserRequestDto) {
         validatePayrollAcccess(newUserRequestDto);
         User newUser = mapToEntity(newUserRequestDto);
         User savedUser = userRepository.save(newUser);
-        return mapToResponse(savedUser);
+        return dtoMapper.mapUserToResponse(savedUser);
     }
     
     public List<UserResponseDto> getAllUsers() {
         List<User> users = userRepository.findAll();
-        return users.stream().map(this::mapToResponse).toList();
+        return users.stream().map(dtoMapper::mapUserToResponse).toList();
     }
 
     public UserResponseDto getUserById(long id) {
         User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
-        return mapToResponse(user);
+        return dtoMapper.mapUserToResponse(user);
     }
 
     public User getUserByEmail(String email) {
@@ -67,7 +69,7 @@ public class UserService {
         Department dept = departmentRepository.findById(updatedUserRequestDto.getDepartmentId()).orElseThrow(() -> new ResourceNotFoundException("Department not found with id: " + updatedUserRequestDto.getDepartmentId()));
         existingUser.setDepartment(dept);
         User updatedUser = userRepository.save(existingUser);
-        return mapToResponse(updatedUser);
+        return dtoMapper.mapUserToResponse(updatedUser);
     }
 
     public void deleteUser(long id) {
@@ -80,13 +82,13 @@ public class UserService {
         if(users == null || users.isEmpty()) {
             throw new ResourceNotFoundException("No users found for department with id: " + departmentId);
         }
-        return users.stream().map(this::mapToResponse).toList();
+        return users.stream().map(dtoMapper::mapUserToResponse).toList();
     }
 
     public DepartmentResponseDto getDepartmentByUserId(long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
         Department department = departmentRepository.findById(user.getDepartment().getId()).orElseThrow(() -> new ResourceNotFoundException("Department not found with id: " + user.getDepartment().getId()));
-        return departmentService.mapToResponse(department);
+        return dtoMapper.mapDepartmentToResponse(department);
     }
 
     public UserResponseDto updateUserDepartment(Long userId, Long departmentId) {
@@ -94,7 +96,7 @@ public class UserService {
         Department department = departmentRepository.findById(departmentId).orElseThrow(() -> new ResourceNotFoundException("Department not found with id: " + departmentId));
         user.setDepartment(department);
         User updatedUser = userRepository.save(user);
-        return mapToResponse(updatedUser);
+        return dtoMapper.mapUserToResponse(updatedUser);
     }
 
     private void validatePayrollAcccess(UserRequestDto userRequestDto) {
@@ -110,7 +112,16 @@ public class UserService {
         if(users == null || users.isEmpty()) {
             throw new ResourceNotFoundException("No users found for project with id: " + projectId);
         }
-        return users.stream().map(this::mapToResponse).toList();
+        return users.stream().map(dtoMapper::mapUserToResponse).toList();
+    }
+
+    public List<ProjectResponseDto> getUserProjects(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        Set<Project> projects = user.getProjects();
+        if(projects == null || projects.isEmpty()) {
+            throw new ResourceNotFoundException("No projects found for user with id: " + userId);
+        }
+        return projects.stream().map(dtoMapper::mapProjectToResponse).toList();
     }
 
     public UserResponseDto assignUserToProject(Long userId, Long projectId) {
@@ -118,7 +129,7 @@ public class UserService {
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId));
         user.getProjects().add(project);
         User updatedUser = userRepository.save(user);
-        return mapToResponse(updatedUser);
+        return dtoMapper.mapUserToResponse(updatedUser);
     }
 
     private User mapToEntity(UserRequestDto userRequestDto) {
@@ -133,22 +144,5 @@ public class UserService {
         user.setProjects(userRequestDto.getProjects());
         user.setPayRoll(userRequestDto.getPayRoll());
         return user;
-    }
-
-    private UserResponseDto mapToResponse(User user){
-        UserResponseDto dto = new UserResponseDto();
-        dto.setId(user.getId());
-        dto.setFirstName(user.getFirstName());
-        dto.setLastName(user.getLastName());
-        dto.setEmail(user.getEmail());
-        dto.setPhone(user.getPhone());
-        dto.setRole(user.getRole());
-        dto.setDepartmentId(user.getDepartment().getId());
-        dto.setDepartmentName(user.getDepartment().getName());
-        dto.setProjects(user.getProjects());
-        dto.setPayRoll(user.getPayRoll());
-        dto.setCreatedAt(user.getCreatedAt());
-        dto.setUpdatedAt(user.getUpdatedAt());
-        return dto;
     }
 }

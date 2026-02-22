@@ -1,21 +1,27 @@
 package com.example.user_management_service.service;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 
 import com.example.user_management_service.dto.ProjectRequestDto;
 import com.example.user_management_service.dto.ProjectResponseDto;
+import com.example.user_management_service.dto.UserResponseDto;
 import com.example.user_management_service.exception.ResourceNotFoundException;
 import com.example.user_management_service.model.Project;
+import com.example.user_management_service.model.User;
 import com.example.user_management_service.repository.ProjectRepository;
+import com.example.user_management_service.util.DtoMapper;
 
 @Service
 public class ProjectService {
     private final ProjectRepository projectRepository;
+    private final DtoMapper dtoMapper;
 
-    public ProjectService(ProjectRepository projectRepository) {
+    public ProjectService(ProjectRepository projectRepository, DtoMapper dtoMapper) {
         this.projectRepository = projectRepository;
+        this.dtoMapper = dtoMapper;
     }
 
     public ProjectResponseDto createProject(ProjectRequestDto projectRequestDto) {
@@ -27,17 +33,17 @@ public class ProjectService {
         }
         Project project = mapToEntity(projectRequestDto);
         Project savedProject = projectRepository.save(project);
-        return mapToResponseDto(savedProject);
+        return dtoMapper.mapProjectToResponse(savedProject);
     }
 
     public List<ProjectResponseDto> getAllProjects() {
         List<Project> projects = projectRepository.findAll();
-        return projects.stream().map(this::mapToResponseDto).toList();
+        return projects.stream().map(dtoMapper::mapProjectToResponse).toList();
     }
 
     public ProjectResponseDto getProjectById(Long id) {
         Project project = projectRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
-        return mapToResponseDto(project);
+        return dtoMapper.mapProjectToResponse(project);
     }
 
     public ProjectResponseDto updateProject(Long id, ProjectRequestDto projectRequestDto) {
@@ -49,13 +55,22 @@ public class ProjectService {
         existingProject.setEndDate(projectRequestDto.getEndDate());
 
         Project updatedProject = projectRepository.save(existingProject);
-        return mapToResponseDto(updatedProject);
+        return dtoMapper.mapProjectToResponse(updatedProject);
     }
 
 
     public void deleteProject(Long id) {
         Project project = projectRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
         projectRepository.delete(project);
+    }
+
+    public List<UserResponseDto> getProjectUsers(Long projectId) {
+        Project project = projectRepository.findById(projectId).orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId));
+        Set<User> users = project.getUsers();
+        if(users == null || users.isEmpty()) {
+            throw new ResourceNotFoundException("No users found for project with id: " + projectId);
+        }
+        return users.stream().map(dtoMapper::mapUserToResponse).toList();
     }
 
     private Project mapToEntity(ProjectRequestDto projectRequestDto) {
@@ -66,16 +81,5 @@ public class ProjectService {
         project.setStartDate(projectRequestDto.getStartDate());
         project.setEndDate(projectRequestDto.getEndDate());
         return project;
-    }
-
-    private ProjectResponseDto mapToResponseDto(Project project) {
-        ProjectResponseDto responseDto = new ProjectResponseDto();
-        responseDto.setId(project.getId());
-        responseDto.setName(project.getName());
-        responseDto.setDescription(project.getDescription());
-        responseDto.setStatus(project.getStatus());
-        responseDto.setStartDate(project.getStartDate());
-        responseDto.setEndDate(project.getEndDate());
-        return responseDto;
     }
 }

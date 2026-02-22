@@ -30,4 +30,16 @@ build/
 !**/src/test/**/build/
 
 ### VS Code ###
-.vscode/
+.vscode/settings.json
+.vscode/extensions.json
+.vscode/*.log
+
+### Application Configuration ###
+# MySQL configuration with sensitive credentials
+application-mysql.properties
+application-local.properties
+
+# Environment files
+.env
+.env.local
+.env.local

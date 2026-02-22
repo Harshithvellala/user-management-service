@@ -9,13 +9,16 @@ import com.example.user_management_service.dto.DepartmentResponseDto;
 import com.example.user_management_service.exception.ResourceNotFoundException;
 import com.example.user_management_service.model.Department;
 import com.example.user_management_service.repository.DepartmentRepository;
+import com.example.user_management_service.util.DtoMapper;
 
 @Service
 public class DepartmentService {
     private final DepartmentRepository departmentRepository;
+    private final DtoMapper dtoMapper;
     
-    public DepartmentService(DepartmentRepository departmentRepository) {
+    public DepartmentService(DepartmentRepository departmentRepository, DtoMapper dtoMapper) {
         this.departmentRepository = departmentRepository;
+        this.dtoMapper = dtoMapper;
     }
 
     public DepartmentResponseDto createDepartment(DepartmentRequestDto departmentRequestDto) {
@@ -23,22 +26,22 @@ public class DepartmentService {
         if(departmentRepository.existsByName(department.getName())) {
             throw new IllegalStateException("Department with name " + department.getName() + " already exists.");
         }
-        return mapToResponse(departmentRepository.save(department));
+        return dtoMapper.mapDepartmentToResponse(departmentRepository.save(department));
     }
 
     public DepartmentResponseDto getDepartmentById(long id) {
         Department response = departmentRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Department not found with id: " + id));
-        return mapToResponse(response);
+        return dtoMapper.mapDepartmentToResponse(response);
     }
     
     public DepartmentResponseDto getDepartmentByName(String name) {
         Department response = departmentRepository.findByName(name).orElseThrow(() -> new ResourceNotFoundException("Department not found with name: " + name));
-        return mapToResponse(response);
+        return dtoMapper.mapDepartmentToResponse(response);
     }
 
     public List<DepartmentResponseDto> getAllDepartments() {
         List<Department> departments = departmentRepository.findAll();
-        return departments.stream().map(this::mapToResponse).toList();
+        return departments.stream().map(dtoMapper::mapDepartmentToResponse).toList();
     }
 
     public DepartmentResponseDto updateDepartment(long id, DepartmentRequestDto departmentRequestDto) {
@@ -47,7 +50,7 @@ public class DepartmentService {
         existingDepartment.setDescription(departmentRequestDto.getDescription());
         existingDepartment.setLocation(departmentRequestDto.getLocation());
         Department updatedDepartment = departmentRepository.save(existingDepartment);
-        return mapToResponse(updatedDepartment);
+        return dtoMapper.mapDepartmentToResponse(updatedDepartment);
     }
 
     public void deleteDepartment(long id) {
@@ -61,14 +64,5 @@ public class DepartmentService {
         department.setDescription(departmentRequestDto.getDescription());
         department.setLocation(departmentRequestDto.getLocation());
         return department;
-    }
-
-    DepartmentResponseDto mapToResponse(Department department) {
-        DepartmentResponseDto dto = new DepartmentResponseDto();
-        dto.setId(department.getId());
-        dto.setName(department.getName());
-        dto.setDescription(department.getDescription());
-        dto.setLocation(department.getLocation());
-        return dto;
     }
 }

@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.user_management_service.dto.ProjectRequestDto;
 import com.example.user_management_service.dto.ProjectResponseDto;
+import com.example.user_management_service.dto.UserResponseDto;
 import com.example.user_management_service.service.ProjectService;
 
 import jakarta.validation.Valid;
@@ -58,6 +59,12 @@ public class ProjectController {
     public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
         projectService.deleteProject(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/users")
+    public ResponseEntity<List<UserResponseDto>> getProjectUsers(@PathVariable Long id) {
+        List<UserResponseDto> userResponseDtos = projectService.getProjectUsers(id);
+        return ResponseEntity.ok(userResponseDtos);
     }
     
 }

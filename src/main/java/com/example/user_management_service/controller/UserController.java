@@ -14,11 +14,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.user_management_service.dto.DepartmentResponseDto;
+import com.example.user_management_service.dto.ProjectResponseDto;
 import com.example.user_management_service.dto.UserRequestDto;
 import com.example.user_management_service.dto.UserResponseDto;
 import com.example.user_management_service.service.UserService;
 
 import jakarta.validation.Valid;
+
 
 @RestController
 @RequestMapping("/users")
@@ -73,6 +75,17 @@ public class UserController {
     public ResponseEntity<UserResponseDto> updateUserDepartment(@PathVariable long id, @PathVariable long deptId) {
         UserResponseDto updatedUser = userService.updateUserDepartment(id, deptId);
         return ResponseEntity.ok(updatedUser);
+    }
+    
+    @PostMapping("/{userid}/assignproject/{prjid}")
+    public ResponseEntity<UserResponseDto> assignProjectToUser(@PathVariable long userid, @PathVariable long prjid) {
+        UserResponseDto userResponseDto = userService.assignUserToProject(userid, prjid);
+        return ResponseEntity.ok(userResponseDto);
+    }
+
+    @GetMapping("/{id}/projects")
+    public ResponseEntity<List<ProjectResponseDto>> getUserProjects(@PathVariable long id) {
+        return ResponseEntity.ok(userService.getUserProjects(id));
     }
     
 }

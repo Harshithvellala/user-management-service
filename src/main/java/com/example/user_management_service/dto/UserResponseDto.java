@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
 
-import com.example.user_management_service.model.Project;
 import com.example.user_management_service.model.Role;
 
 public class UserResponseDto {
@@ -16,7 +15,7 @@ public class UserResponseDto {
     private Role role;
     private Long departmentId;
     private String departmentName;
-    private Set<Project> projects;
+    private Set<ProjectResponseDto> projects;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private BigDecimal payRoll;
@@ -70,10 +69,10 @@ public class UserResponseDto {
     public void setDepartmentName(String departmentName) {
         this.departmentName = departmentName;
     }
-    public Set<Project> getProjects() {
+    public Set<ProjectResponseDto> getProjects() {
         return projects;
     }
-    public void setProjects(Set<Project> projects) {
+    public void setProjects(Set<ProjectResponseDto> projects) {
         this.projects = projects;
     }
     public LocalDateTime getCreatedAt() {

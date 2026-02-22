@@ -1,0 +1,26 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot App (H2)",
+            "request": "launch",
+            "mainClass": "com.example.user_management_service.UserManagementServiceApplication",
+            "projectName": "user-management-service",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot App (MySQL - run with db)",
+            "request": "launch",
+            "mainClass": "com.example.user_management_service.UserManagementServiceApplication",
+            "projectName": "user-management-service",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "args": "--spring.profiles.active=mysql"
+        }
+    ]
+}
